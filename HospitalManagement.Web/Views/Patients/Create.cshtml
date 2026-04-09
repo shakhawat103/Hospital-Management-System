@@ -1,0 +1,89 @@
+﻿@model HospitalManagement.Core.DTOs.Patients.CreatePatientDto
+
+@{
+    // 💡 Smart: Check if we're editing (Id has value) or creating (Id is null)
+    var isEdit = Model.Id.HasValue;
+    ViewData["Title"] = isEdit ? "Edit Patient" : "Add Patient";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <!-- Dynamic Header -->
+                <div class="card-header @(isEdit ? "bg-warning text-dark" : "bg-primary text-white")">
+                    <h4 class="mb-0">@(isEdit ? "✏️ Edit Patient" : "➕ Add New Patient")</h4>
+                </div>
+
+                <!-- Form -->
+                <div class="card-body">
+                    <form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <!-- Hidden Id field for Edit (ignored when creating) -->
+                        @if (isEdit)
+                        {
+                            <input type="hidden" asp-for="Id" />
+                        }
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <!-- First Name -->
+                        <div class="mb-3">
+                            <label asp-for="FirstName" class="form-label">First Name *</label>
+                            <input asp-for="FirstName" class="form-control" placeholder="e.g., John" />
+                            <span asp-validation-for="FirstName" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Last Name -->
+                        <div class="mb-3">
+                            <label asp-for="LastName" class="form-label">Last Name *</label>
+                            <input asp-for="LastName" class="form-control" placeholder="e.g., Doe" />
+                            <span asp-validation-for="LastName" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Date of Birth -->
+                        <div class="mb-3">
+                            <label asp-for="DateOfBirth" class="form-label">Date of Birth *</label>
+                            <input asp-for="DateOfBirth" type="date" class="form-control"
+                                   max="@DateTime.Today.AddYears(-1).ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="mb-3">
+                            <label asp-for="Phone" class="form-label">Phone *</label>
+                            <input asp-for="Phone" class="form-control" placeholder="e.g., +1 (555) 123-4567" />
+                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-4">
+                            <label asp-for="Email" class="form-label">Email *</label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="e.g., john@example.com" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Dynamic Buttons -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Index" class="btn btn-secondary">❌ Cancel</a>
+                            @if (isEdit)
+                            {
+                                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-info">👁️ View</a>
+                            }
+                            <button type="submit" class="btn @(isEdit ? "btn-warning" : "btn-primary") px-4">
+                                @(isEdit ? "💾 Save Changes" : "💾 Save Patient")
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
