@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using HospitalManagement.Core.DTOs.Patients;
 using HospitalManagement.Application.Services.PatientService;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HospitalManagement.Web.Controllers;
 
+[Authorize(Roles ="Admin")] 
 public class PatientsController : Controller
 {
     private readonly IPatientService _patientService;

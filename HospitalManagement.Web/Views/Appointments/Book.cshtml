@@ -1,0 +1,85 @@
+﻿@model HospitalManagement.Core.DTOs.Appointments.CreateAppointmentDto
+
+@{
+    ViewData["Title"] = "Book Appointment";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">📅 Book Appointment</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Book" method="post">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <!-- Hidden: Patient ID (current user) -->
+                        <input type="hidden" asp-for="PatientId" />
+
+                        <!-- Hidden: Doctor ID (pre-selected) -->
+                        <input type="hidden" asp-for="DoctorId" />
+
+                        <!-- Doctor Info (Read-Only Display) -->
+                        <div class="alert alert-light mb-4">
+                            <strong>Booking with:</strong>
+                            <span id="doctorName">Loading...</span>
+                            <br>
+                            @* <small class="text-muted">Specialty: <span id="doctorSpecialty"></span></small> *@
+                        </div>
+
+                        <!-- Appointment Date -->
+                        <div class="mb-3">
+                            <label asp-for="AppointmentDate" class="form-label">Preferred Date & Time *</label>
+                            <input asp-for="AppointmentDate" type="datetime-local" class="form-control"
+                                   min="@DateTime.Now.AddHours(1).ToString("yyyy-MM-ddTHH:mm")" />
+                            <span asp-validation-for="AppointmentDate" class="text-danger small"></span>
+                            <small class="text-muted">Select a time at least 1 hour from now</small>
+                        </div>
+
+                        <!-- Notes/Reason for Visit -->
+                        <div class="mb-4">
+                            <label asp-for="Notes" class="form-label">Reason for Visit (Optional)</label>
+                            <textarea asp-for="Notes" class="form-control" rows="3"
+                                      placeholder="Briefly describe your symptoms or reason for visit..."></textarea>
+                            <span asp-validation-for="Notes" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="BrowseDoctors" class="btn btn-secondary">← Back</a>
+                            <button type="submit" class="btn btn-success px-4">✅ Confirm Booking</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Load doctor details via AJAX when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const doctorId = document.querySelector('input[name="DoctorId"]').value;
+            if (doctorId) {
+                fetch(`/api/doctors/${doctorId}`)  // You'll need to create this API endpoint
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('doctorName').textContent = data.fullName;
+                        document.getElementById('doctorSpecialty').textContent = data.specialty;
+                    })
+                    .catch(err => {
+                        console.error('Error loading doctor info:', err);
+                        document.getElementById('doctorName').textContent = 'Doctor #' + doctorId;
+                    });
+            }
+        });
+    </script>
+}

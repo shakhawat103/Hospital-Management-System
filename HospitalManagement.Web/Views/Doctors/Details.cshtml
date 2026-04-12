@@ -1,0 +1,78 @@
+﻿@model HospitalManagement.Core.DTOs.Doctors.DoctorDto
+
+@{
+    ViewData["Title"] = "Doctor Details";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <!-- Header with Photo -->
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="@(Model.PhotoUrl ?? "/images/default-doctor.png")"
+                             class="rounded-circle border border-3 border-white"
+                             style="width: 60px; height: 60px; object-fit: cover;"
+                             onerror="this.src='/images/default-doctor.png'" />
+                        <h4 class="mb-0">@Model.FullName</h4>
+                    </div>
+                    <a asp-action="Index" class="btn btn-light btn-sm">← Back</a>
+                </div>
+
+                <div class="card-body">
+                    <!-- Doctor Info Grid -->
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded">
+                                <small class="text-muted d-block">Specialty</small>
+                                <strong>@Model.Specialty</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded">
+                                <small class="text-muted d-block">License Number</small>
+                                <strong><code>@Model.LicenseNumber</code></strong>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded">
+                                <small class="text-muted d-block">Consultation Fee</small>
+                                <strong class="text-success">$@Model.ConsultationFee.ToString("F2")</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded">
+                                <small class="text-muted d-block">Phone</small>
+                                <strong><a href="tel:@Model.Phone" class="text-decoration-none">@Model.Phone</a></strong>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="p-3 bg-light rounded">
+                                <small class="text-muted d-block">Email</small>
+                                <strong><a href="mailto:@Model.Email" class="text-decoration-none">@Model.Email</a></strong>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="p-3 bg-light rounded">
+                                <small class="text-muted d-block">Registered On</small>
+                                <strong>@Model.CreatedAt.ToString("MMMM dd, yyyy 'at' hh:mm tt")</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="card-footer bg-light">
+                    <div class="d-flex gap-2">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">✏️ Edit</a>
+                        <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this doctor?')">🗑️ Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

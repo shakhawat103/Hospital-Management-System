@@ -1,5 +1,6 @@
 ﻿using HospitalManagement.Application.Mapping;
-
+using HospitalManagement.Application.Services.AppointmentService;
+using HospitalManagement.Application.Services.DoctorService;
 using HospitalManagement.Application.Services.PatientService;
 using HospitalManagement.Core.Entities;
 using HospitalManagement.Core.Entities.Identity;
@@ -37,6 +38,14 @@ builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile));  // Finds Ma
 // 5. DI Registration
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();  // ✅ NEW
+
+builder.Services.ConfigureApplicationCookie(Options =>
+{
+    Options.LoginPath = "/Account/Login";
+    Options.AccessDeniedPath = "/Account/AccessDenied";
+});
 
 var app = builder.Build();
 

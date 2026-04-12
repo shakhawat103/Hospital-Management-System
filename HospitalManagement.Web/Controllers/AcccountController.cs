@@ -95,4 +95,8 @@ public class AccountController : Controller
         _logger.LogInformation("User logged out.");
         return RedirectToAction("Index", "Home");
     }
+
+    // 🚫 GET: /Account/AccessDenied
+    [HttpGet("AccessDenied")]
+    public IActionResult AccessDenied() => View();
 }

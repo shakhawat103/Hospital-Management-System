@@ -1,10 +1,11 @@
 ﻿// ✅ CORRECT USING STATEMENTS (no circular imports!)
 using AutoMapper;
+using HospitalManagement.Core; // ✅ Interface namespace
 using HospitalManagement.Core.DTOs.Patients;
 using HospitalManagement.Core.Entities;
-using HospitalManagement.Core; // ✅ Interface namespace
 using HospitalManagement.Core.Interfaces.UnitOfWork;
 using Microsoft.Extensions.Logging;
+using System.Security.Claims;
 
 // ✅ CORRECT NAMESPACE (singular "Patient", not "PatientService")
 namespace HospitalManagement.Application.Services.PatientService;
@@ -178,5 +179,27 @@ public class PatientService : IPatientService
             _logger.LogInformation("Soft-deleted patient {Id}", id);
 
         return result;
+    }
+
+    public async Task<int?> GetCurrentPatientIdAsync(ClaimsPrincipal user)
+    {
+        // 1. Check authentication safely
+        if (user?.Identity?.IsAuthenticated != true)
+            return null;
+
+        // 2. Extract email
+        var email = user.FindFirstValue(ClaimTypes.Email);
+        if (string.IsNullOrWhiteSpace(email))
+            return null;
+
+        // 3. Query the repository
+        // Use ToLower() to avoid casing mismatches
+        var patients = await _unitOfWork.Repository<Patient>()
+            .FindAsync(p => p.Email.ToLower() == email.ToLower());
+
+        // 4. Extract the result
+        var patient = patients?.FirstOrDefault();
+
+        return patient?.Id;
     }
 }

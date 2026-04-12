@@ -84,6 +84,21 @@
                                 </a>
                             </li>
                         }
+
+                        @if (User.IsInRole("Patient"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Appointments" asp-action="MyAppointments">
+                                    <i class="bi bi-calendar-check me-1"></i> My Appointments
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Appointments" asp-action="BrowseDoctors">
+                                    <i class="bi bi-search me-1"></i> Find Doctor
+                                </a>
+                            </li>
+                        }
+
                     }
                 </ul>
 

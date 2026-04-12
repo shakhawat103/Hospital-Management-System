@@ -1,0 +1,97 @@
+﻿@using HospitalManagement.Core.Enums
+@model IEnumerable<HospitalManagement.Core.DTOs.Appointments.AppointmentDto>
+
+@{
+    ViewData["Title"] = "My Appointments";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📋 My Appointments</h2>
+        <a asp-action="BrowseDoctors" class="btn btn-primary">
+            ➕ Book New Appointment
+        </a>
+    </div>
+
+    @if (Model?.Any() == true)
+    {
+        <div class="row g-4">
+            @foreach (var appt in Model.OrderBy(a => a.Status == AppointmentStatus.Scheduled ? 0 : 1))
+            {
+                // Group: Upcoming first, then history
+                var isUpcoming = appt.Status == AppointmentStatus.Scheduled && appt.AppointmentDate > DateTime.Now;
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm border-0 @(isUpcoming ? "border-primary" : "")">
+                        @if (isUpcoming)
+                        {
+                            <div class="card-header bg-primary text-white small">
+                                ⏰ Upcoming
+                            </div>
+                        }
+                        <div class="card-body">
+                            <!-- Doctor Info -->
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="@(appt.DoctorPhotoUrl ?? "/images/default-doctor.png")"
+                                     class="rounded-circle me-3"
+                                     style="width: 50px; height: 50px; object-fit: cover;"
+                                     onerror="this.src='/images/default-doctor.png'">
+                                <div>
+                                    <h6 class="mb-0">@appt.DoctorName</h6>
+                                    <small class="text-muted">@appt.DoctorSpecialty</small>
+                                </div>
+                            </div>
+
+                            <!-- Appointment Details -->
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Date & Time</small>
+                                <strong>@appt.FormattedDate</strong>
+                            </div>
+
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Status</small>
+                                <span class="badge @appt.StatusBadgeClass">
+                                    @appt.Status
+                                </span>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(appt.Notes))
+                            {
+                                <div class="mb-3">
+                                    <small class="text-muted d-block">Notes</small>
+                                    <small>@appt.Notes</small>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="card-footer bg-white border-0">
+                            @if (isUpcoming)
+                            {
+                                <form asp-action="Cancel" asp-route-id="@appt.Id" method="post"
+                                      class="d-inline" onsubmit="return confirm('Cancel this appointment?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                        ❌ Cancel
+                                    </button>
+                                </form>
+                            }
+                            @if (appt.Status == AppointmentStatus.Completed)
+                            {
+                                <small class="text-success">✓ Completed</small>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-calendar-x display-4 text-muted"></i>
+            <p class="mt-3 text-muted">You have no appointments yet.</p>
+            <a asp-action="BrowseDoctors" class="btn btn-primary">Book Your First Appointment</a>
+        </div>
+    }
+</div>

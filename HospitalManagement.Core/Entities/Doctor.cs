@@ -1,18 +1,22 @@
-﻿namespace HospitalManagement.Core.Entities;
+﻿using HospitalManagement.Core.Entities;
 
-// 💡 A Patient IS-A BaseEntity (gets Id, CreatedAt, IsDeleted for free)
-public class Patient : BaseEntity
+public class Doctor : BaseEntity
 {
-    // Required fields
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
-    public DateTime DateOfBirth { get; set; }
+    public string Specialty { get; set; } = string.Empty;
+    public string LicenseNumber { get; set; } = string.Empty;
+    public decimal ConsultationFee { get; set; }
     public string Phone { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
 
-    // Optional: Link to ASP.NET Identity if you add login later
+    // ✅ NEW: Profile photo URL (stored as string path/URL)
+    public string? PhotoUrl { get; set; }  // Nullable, optional
+
+    // Optional: Link to Identity user later
     // public string UserId { get; set; }
     // public ApplicationUser? User { get; set; }
+
     // Navigation: One patient has many appointments
     public virtual ICollection<Appointment>? Appointments { get; set; } = new List<Appointment>();
 }
