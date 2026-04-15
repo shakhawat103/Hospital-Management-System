@@ -1,5 +1,14 @@
-﻿@model IEnumerable<HospitalManagement.Core.DTOs.Doctors.DoctorDto> 
-
+﻿@using HospitalManagement.Core.DTOs.Doctors
+@* @model IEnumerable<HospitalManagement.Core.DTOs.Doctors.DoctorDto>  *@
+@model HospitalManagement.Core.Common.PagedResult<DoctorDto>
+@{
+    ViewData["Title"] = "Patients";
+    var pageNumber = ViewBag.CurrentPage as int? ?? 1;
+    var pageSize = ViewBag.PageSize as int? ?? 10;
+    var totalCount = ViewBag.TotalCount as int? ?? 0;
+    var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+    var searchTerm = ViewBag.SearchTerm as string;
+}
 @{
     ViewData["Title"] = "Doctors";
 }
@@ -11,10 +20,87 @@
         <a asp-action="Create" class="btn btn-primary">➕ Add New Doctor</a>
     </div>
 
-    <!-- Patients Table -->
+    <!-- 🔍 Search & Filter Section -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="row g-3 align-items-end">
+
+                <!-- Search Input -->
+                <div class="col-md-5">
+                    <label class="form-label small text-muted">🔍 Search Patients</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text"
+                               name="search"
+                               class="form-control"
+                               placeholder="Name, email, or phone..."
+                               value="@searchTerm"
+                               aria-label="Search">
+                        @if (!string.IsNullOrEmpty(searchTerm))
+                        {
+                            <a asp-action="Index"
+                               asp-route-page="1"
+                               asp-route-pageSize="@pageSize"
+                               class="btn btn-outline-secondary"
+                               title="Clear search">
+                                <i class="bi bi-x-lg"></i>
+                            </a>
+                        }
+                    </div>
+                    @* <small class="text-muted">Searches first name, last name, email, and phone</small> *@
+                </div>
+
+                <!-- Page Size Selector -->
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">Items per page</label>
+                    <select name="pageSize" class="form-select" asp-items="@(new[] {
+                                                                                                                                                    new SelectListItem { Value = "5", Text = "5" },
+                                                                                                                                                    new SelectListItem { Value = "10", Text = "10", Selected = pageSize == 10 },
+                                                                                                                                                    new SelectListItem { Value = "25", Text = "25", Selected = pageSize == 25 },
+                                                                                                                                                    new SelectListItem { Value = "50", Text = "50", Selected = pageSize == 50 }
+                                                                                                                                                })" onchange="this.form.submit()">
+                    </select>
+                </div>
+
+                <!-- Search Button -->
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-funnel me-1"></i> Filter
+                    </button>
+                </div>
+
+                <!-- Reset Button -->
+                <div class="col-md-2">
+                    <a asp-action="Index"
+                       asp-route-page="1"
+                       asp-route-pageSize="10"
+                       class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Show search results info -->
+    @if (!string.IsNullOrEmpty(searchTerm))
+    {
+        <div class="alert alert-info py-2 mb-3">
+            <i class="bi bi-info-circle me-2"></i>
+            Showing results for "<strong>@searchTerm</strong>"
+            (@totalCount found)
+            <a asp-action="Index" asp-route-page="1" asp-route-pageSize="@pageSize" class="ms-2 small">
+                Clear search
+            </a>
+        </div>
+    }
+
+    <!-- Doctors Table -->
     <div class="card">
         <div class="card-body p-0">
-            @if (Model?.Any() == true)
+            @if (Model?.Items?.Any() == true)
             {
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
@@ -30,7 +116,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var d in Model)
+                            @foreach (var d in Model.Items)
                             {
                                 <tr>
                                     <td><strong>@d.FullName</strong></td>
@@ -71,4 +157,6 @@
             }
         </div>
     </div>
+
+    @await Html.PartialAsync("_Pagination", Model)
 </div>

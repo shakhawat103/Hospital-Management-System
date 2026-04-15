@@ -1,4 +1,6 @@
-﻿using HospitalManagement.Core.DTOs.Doctors;
+﻿using HospitalManagement.Core.Common;
+using HospitalManagement.Core.DTOs.Doctors;
+
 
 
 namespace HospitalManagement.Application.Services.DoctorService;
@@ -7,7 +9,10 @@ namespace HospitalManagement.Application.Services.DoctorService;
 public interface IDoctorService
 {
     Task<DoctorDto?> GetByIdAsync(int id);
-    Task<IEnumerable<DoctorDto>> GetAllAsync();
+    Task<PagedResult<DoctorDto>> GetPagedAsync(
+    int pageNumber = 1,
+    int pageSize = 10,
+    string? searchTerm = null);
     Task<DoctorDto> CreateAsync(CreateDoctorDto dto);
     Task<bool> UpdateAsync(CreateDoctorDto dto);  // Reuse same DTO for update
     Task<bool> DeleteAsync(int id);

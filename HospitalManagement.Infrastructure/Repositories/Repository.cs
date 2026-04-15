@@ -20,17 +20,7 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
 
     public async Task<T?> GetByIdAsync(int id) => await _dbSet.FindAsync(id);
     public async Task<IEnumerable<T>> GetAllAsync() => await _dbSet.ToListAsync();
-    public async Task<PagedResult<T>> GetPagedAsync(int pageNumber, int pageSize)
-    {
-        // Ensure page numbers are valid
-        pageNumber = pageNumber < 1 ? 1 : pageNumber;
-        pageSize = pageSize > 100 ? 100 : pageSize; // Max 100 per page
 
-        return await PagedResult<T>.CreateAsync(
-            _dbSet.AsNoTracking(), // ✅ NoTracking for read-only queries = faster
-            pageNumber,
-            pageSize);
-    }
     // ✅ Search with pagination (main method for list views)
     public async Task<PagedResult<T>> GetPagedAsync(
         int pageNumber,

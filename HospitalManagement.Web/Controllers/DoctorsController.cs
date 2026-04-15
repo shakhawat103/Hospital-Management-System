@@ -44,12 +44,21 @@ public class DoctorsController : Controller
     }
 
     // 📋 List all doctors
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int page = 1, int pageSize = 10, string? search = null)
     {
-        var doctors = await _doctorService.GetAllAsync();
-        return View(doctors);
-    }
+        // 1. Get paged + filtered doctors  from service
+        var pagedResult = await _doctorService.GetPagedAsync(page, pageSize, search);
 
+        // 2. Pass metadata to view via ViewBag
+        ViewBag.CurrentPage = pagedResult.PageNumber;
+        ViewBag.PageSize = pagedResult.PageSize;
+        ViewBag.TotalCount = pagedResult.TotalCount;
+        ViewBag.SearchTerm = search;
+        ViewBag.TotalPages = pagedResult.TotalPages;
+
+        // 3. Return just the list of DTOs to the view
+        return View(pagedResult);
+    }
     // 👁️ View one doctor
     public async Task<IActionResult> Details(int id)
     {

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using HospitalManagement.Application.Services.DoctorService;
+using HospitalManagement.Core.Common;
 using HospitalManagement.Core.DTOs.Doctors;
+using HospitalManagement.Core.DTOs.Patients;
 using HospitalManagement.Core.Entities;
 using HospitalManagement.Core.Interfaces.UnitOfWork;
 using Microsoft.Extensions.Logging;
@@ -40,10 +42,26 @@ public class DoctorService : IDoctorService
         return _mapper.Map<DoctorDto>(doctor);
     }
 
-    public async Task<IEnumerable<DoctorDto>> GetAllAsync()
+    public async Task<PagedResult<DoctorDto>> GetPagedAsync(
+    int pageNumber = 1,
+    int pageSize = 10,
+    string? searchTerm = null)
     {
-        var doctors = await _unitOfWork.Repository<Doctor>().GetAllAsync();
-        return _mapper.Map<IEnumerable<DoctorDto>>(doctors);
+        // 1. Get paged + filtered entities from repository
+        var pagedPatients = await _unitOfWork.Repository<Doctor>()
+            .GetPagedAsync(pageNumber, pageSize, searchTerm);
+
+        // 2. Map entities → DTOs
+        var dtos = _mapper.Map<IEnumerable<DoctorDto>>(pagedPatients.Items);
+
+        // 3. Return new PagedResult with mapped DTOs + metadata
+        return new PagedResult<DoctorDto>
+        {
+            Items = dtos,
+            PageNumber = pagedPatients.PageNumber,
+            PageSize = pagedPatients.PageSize,
+            TotalCount = pagedPatients.TotalCount
+        };
     }
 
     // ========================================================================

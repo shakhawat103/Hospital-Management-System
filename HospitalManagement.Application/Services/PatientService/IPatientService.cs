@@ -5,8 +5,7 @@ namespace HospitalManagement.Application.Services.PatientService;
 public interface IPatientService
 {
     Task<PatientDto?> GetByIdAsync(int id);
-    //Task<IEnumerable<PatientDto>> GetAllAsync();
-    Task<PagedResult<PatientDto>> GetPagedAsync(int pageNumber = 1, int pageSize = 10);
+   
     // Replace GetAllAsync with this:
     Task<PagedResult<PatientDto>> GetPagedAsync(
         int pageNumber = 1,

@@ -13,8 +13,6 @@ public interface IRepository<T> where T : BaseEntity
     Task<T?> GetByIdAsync(int id);                    // Get one by ID
     Task<IEnumerable<T>> GetAllAsync();               // Get all
                                                       // Add this method inside the interface:
-    Task<PagedResult<T>> GetPagedAsync(int pageNumber, int pageSize);
-    // Add these methods to the interface:
 
     // Search with pagination (for list views)
     Task<PagedResult<T>> GetPagedAsync(

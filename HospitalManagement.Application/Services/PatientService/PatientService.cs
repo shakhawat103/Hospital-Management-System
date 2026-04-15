@@ -56,37 +56,8 @@ public class PatientService : IPatientService
     }
 
     /// <summary>
-    /// Get ALL patients (for list view)
-    /// Returns: List of PatientDto (lightweight, for display only)
-    /// </summary>
-    //public async Task<IEnumerable<PatientDto>> GetAllAsync()
-    //{
-    //    // 1. Fetch all patients (soft-delete filter applied automatically)
-    //    var patients = await _unitOfWork.Repository<Patient>().GetAllAsync();
-
-    //    // 2. Convert list of entities → list of DTOs via AutoMapper
-    //    return _mapper.Map<IEnumerable<PatientDto>>(patients);
-    //}
 
     // Replace GetAllAsync with this:
-    public async Task<PagedResult<PatientDto>> GetPagedAsync(int pageNumber = 1, int pageSize = 10)
-    {
-        // 1. Get paged entities from repository
-        var pagedPatients = await _unitOfWork.Repository<Patient>()
-            .GetPagedAsync(pageNumber, pageSize);
-
-        // 2. Map entities → DTOs
-        var dtos = _mapper.Map<IEnumerable<PatientDto>>(pagedPatients.Items);
-
-        // 3. Return new PagedResult with mapped DTOs + metadata
-        return new PagedResult<PatientDto>
-        {
-            Items = dtos,
-            PageNumber = pagedPatients.PageNumber,
-            PageSize = pagedPatients.PageSize,
-            TotalCount = pagedPatients.TotalCount
-        };
-    }
 
     public async Task<PagedResult<PatientDto>> GetPagedAsync(
     int pageNumber = 1,
