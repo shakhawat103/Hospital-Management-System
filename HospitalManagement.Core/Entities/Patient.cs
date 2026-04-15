@@ -1,18 +1,16 @@
-﻿namespace HospitalManagement.Core.Entities;
+﻿using HospitalManagement.Core.Entities;
+using HospitalManagement.Core.Entities.Identity;
 
-// 💡 A Patient IS-A BaseEntity (gets Id, CreatedAt, IsDeleted for free)
 public class Patient : BaseEntity
 {
-    // Required fields
+    // ✅ Link to ASP.NET Core Identity User (Only ONE UserId property!)
+    public string? UserId { get; set; } 
+    public virtual ApplicationUser? User { get; set; }
+
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public DateTime DateOfBirth { get; set; }
     public string Phone { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
-
-    // Optional: Link to ASP.NET Identity if you add login later
-    // public string UserId { get; set; }
-    // public ApplicationUser? User { get; set; }
-    // Navigation: One patient has many appointments
     public virtual ICollection<Appointment>? Appointments { get; set; } = new List<Appointment>();
 }

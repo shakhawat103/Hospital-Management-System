@@ -1,9 +1,13 @@
 ﻿using HospitalManagement.Core.Entities;
 using HospitalManagement.Core.Entities.Identity;
 using HospitalManagement.Core.Enums;
+using HospitalManagement.Infrastructure;
 using HospitalManagement.Web.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace HospitalManagement.Web.Controllers;
 
@@ -13,15 +17,18 @@ public class AccountController : Controller
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly ILogger<AccountController> _logger;
+    private readonly ApplicationDbContext _context;
 
     public AccountController(
-        UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager,
-        ILogger<AccountController> logger)
+      UserManager<ApplicationUser> userManager,
+      SignInManager<ApplicationUser> signInManager,
+      ILogger<AccountController> logger,
+      ApplicationDbContext context)  // ✅ Add this
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _logger = logger;
+        _context = context;
     }
 
     // 🔐 GET: /Account/Login
@@ -57,11 +64,13 @@ public class AccountController : Controller
     public IActionResult Register() => View();
 
     // 📝 POST: /Account/Register
-    [HttpPost("Register"), ValidateAntiForgeryToken]
+   // UPDATE your Register POST action:
+[HttpPost("Register"), ValidateAntiForgeryToken]
     public async Task<IActionResult> Register(RegisterViewModel model)
     {
         if (!ModelState.IsValid) return View(model);
 
+        // 1️⃣ Create Identity User
         var user = new ApplicationUser
         {
             UserName = model.Email,
@@ -71,14 +80,34 @@ public class AccountController : Controller
             IsActive = true
         };
 
-        // Default all self-registered users to Patient role
         var result = await _userManager.CreateAsync(user, model.Password);
         if (result.Succeeded)
         {
+            // 2️⃣ Force Patient Role (no role selection on public form)
             await _userManager.AddToRoleAsync(user, UserRole.Patient);
+
+            // 3️⃣ ✅ AUTO-CREATE PATIENT RECORD LINKED TO USER
+            var nameParts = model.FullName.Trim().Split(' ', 2);
+            var patient = new Patient
+            {
+                UserId = user.Id,  // 🔗 Critical: Links Patient ↔ Identity User
+                FirstName = nameParts[0],
+                LastName = nameParts.Length > 1 ? nameParts[1] : "",
+                DateOfBirth = DateTime.UtcNow.AddYears(-20), // Default, patient can edit later
+                Phone = "",
+                Email = user.Email,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Patients.Add(patient);
+            await _context.SaveChangesAsync();  // Saves Patient to DB
+
+            // 4️⃣ Sign in immediately
             await _signInManager.SignInAsync(user, isPersistent: false);
-            _logger.LogInformation("New user registered: {Email}", model.Email);
-            return RedirectToAction("Index", "Home");
+            _logger.LogInformation("New patient registered: {Email}", model.Email);
+
+            // Redirect to patient dashboard
+            return RedirectToAction("MyAppointments", "Appointments");
         }
 
         foreach (var error in result.Errors)

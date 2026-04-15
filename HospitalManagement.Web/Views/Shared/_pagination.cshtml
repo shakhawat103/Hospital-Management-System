@@ -1,0 +1,82 @@
+﻿@* Reusable pagination component *@
+@* @model HospitalManagement.Core.Common.PagedResult<dynamic> *@
+@model dynamic
+
+
+@{
+    var pageNumber = ViewBag.CurrentPage as int? ?? 1;
+    var pageSize = ViewBag.PageSize as int? ?? 10;
+    var totalCount = ViewBag.TotalCount as int? ?? 0;
+    var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+    var searchTerm = ViewBag.SearchTerm as string;
+    var actionName = ViewContext.RouteData.Values["action"]?.ToString();
+    var controllerName = ViewContext.RouteData.Values["controller"]?.ToString();
+}
+
+@if (totalPages > 1)
+{
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+
+            <!-- First Page -->
+            <li class="page-item @(pageNumber == 1 ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-page="1"
+                   asp-route-pageSize="@pageSize"
+                   asp-route-search="@searchTerm">««</a>
+            </li>
+
+            <!-- Previous Page -->
+            <li class="page-item @(pageNumber == 1 ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-page="@(pageNumber - 1)"
+                   asp-route-pageSize="@pageSize"
+                   asp-route-search="@searchTerm">«</a>
+            </li>
+
+            <!-- Page Numbers (show nearby pages only) -->
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                if (i == 1 || i == totalPages || (i >= pageNumber - 2 && i <= pageNumber + 2))
+                {
+                    <li class="page-item @(i == pageNumber ? "active" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@i"
+                           asp-route-pageSize="@pageSize"
+                           asp-route-search="@searchTerm">@i</a>
+                    </li>
+                }
+                else if (i == pageNumber - 3 || i == pageNumber + 3)
+                {
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                }
+            }
+
+            <!-- Next Page -->
+            <li class="page-item @(pageNumber == totalPages ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-page="@(pageNumber + 1)"
+                   asp-route-pageSize="@pageSize"
+                   asp-route-search="@searchTerm">»</a>
+            </li>
+
+            <!-- Last Page -->
+            <li class="page-item @(pageNumber == totalPages ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-page="@totalPages"
+                   asp-route-pageSize="@pageSize"
+                   asp-route-search="@searchTerm">»»</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="text-center text-muted small mt-2">
+        Showing @(Math.Min(pageNumber * pageSize, totalCount)) of @totalCount patients
+        (Page @pageNumber of @totalPages)
+    </div>
+}

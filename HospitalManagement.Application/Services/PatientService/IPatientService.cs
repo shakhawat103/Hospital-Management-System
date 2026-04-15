@@ -1,10 +1,17 @@
-﻿using HospitalManagement.Core.DTOs.Patients;
+﻿using HospitalManagement.Core.Common;
+using HospitalManagement.Core.DTOs.Patients;
 using System.Security.Claims;
 namespace HospitalManagement.Application.Services.PatientService;
 public interface IPatientService
 {
     Task<PatientDto?> GetByIdAsync(int id);
-    Task<IEnumerable<PatientDto>> GetAllAsync();
+    //Task<IEnumerable<PatientDto>> GetAllAsync();
+    Task<PagedResult<PatientDto>> GetPagedAsync(int pageNumber = 1, int pageSize = 10);
+    // Replace GetAllAsync with this:
+    Task<PagedResult<PatientDto>> GetPagedAsync(
+        int pageNumber = 1,
+        int pageSize = 10,
+        string? searchTerm = null);
     Task<PatientDto> CreateAsync(CreatePatientDto dto);
     Task<bool> UpdateAsync(CreatePatientDto dto);  // ✅ Reuse same DTO for update
     Task<bool> DeleteAsync(int id);

@@ -32,41 +32,44 @@ public class AppointmentsController : Controller
 
     // === 📅 PATIENT: Book Appointment Form ===
     [Authorize(Roles = "Patient")]
-    public async Task<IActionResult> Book(int doctorId)
+    [HttpGet]  // ✅ REMOVE the "Book/{doctorId?}" string - use default routing
+    public async Task<IActionResult> Book(int? doctorId)
     {
-        // Pre-fill the form with selected doctor
-        var dto = new CreateAppointmentDto { DoctorId = doctorId };
+        var patientId = await _patientService.GetCurrentPatientIdAsync(User);
+        if (!patientId.HasValue)
+            return RedirectToAction("Index", "Home");
 
-        // Get current patient's ID (from logged-in user)
-        var currentUser = await _patientService.GetCurrentPatientIdAsync(User);
-        if (currentUser.HasValue)
-            dto.PatientId = currentUser.Value;
+        var dto = new CreateAppointmentDto
+        {
+            PatientId = patientId.Value,
+            DoctorId = doctorId ?? 0,
+            AppointmentDate = DateTime.Now.AddHours(2)
+        };
 
         return View(dto);
     }
 
+
     // === 📅 PATIENT: Handle Booking Submission ===
     [Authorize(Roles = "Patient")]
-    [HttpPost]
+    [HttpPost]  // ✅ Keep this - matches default convention
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Book(CreateAppointmentDto dto)
     {
-        if (!ModelState.IsValid) return View(dto);
-
-        // Ensure patient is booking for themselves (security)
         var currentPatientId = await _patientService.GetCurrentPatientIdAsync(User);
         if (!currentPatientId.HasValue || currentPatientId.Value != dto.PatientId)
-        {
-            ModelState.AddModelError(string.Empty, "You can only book appointments for yourself");
+            return RedirectToAction("Index", "Home");
+
+        if (!ModelState.IsValid)
             return View(dto);
-        }
 
         try
         {
-            var booked = await _appointmentService.BookAppointmentAsync(dto);
+            await _appointmentService.BookAppointmentAsync(dto);
+            TempData["Success"] = "✅ Appointment booked successfully!";
             return RedirectToAction("MyAppointments");
         }
-        catch (InvalidOperationException ex)
+        catch (Exception ex)
         {
             ModelState.AddModelError(string.Empty, ex.Message);
             return View(dto);
