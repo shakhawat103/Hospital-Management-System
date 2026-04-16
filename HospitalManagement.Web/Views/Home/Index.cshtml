@@ -5,342 +5,421 @@
 
 @{
     ViewData["Title"] = "Dashboard";
-
-    // 💡 Safely get current user details
     var currentUser = await UserManager.GetUserAsync(User);
     var displayName = currentUser?.FullName ?? "User";
-
-    // Determine primary role for UI customization
     var userRole = User.IsInRole("Admin") ? "Admin" :
                    User.IsInRole("Doctor") ? "Doctor" :
-                   User.IsInRole("Patient") ? "Patient" : "Normal";
+                   User.IsInRole("Patient") ? "Patient" : "Guest";
 }
- <body>
-    <div class="container-fluid py-4 px-lg-4">
 
+<style>
+    :root {
+        --hms-primary: #0d6efd;
+        --hms-secondary: #6c757d;
+        --hms-success: #198754;
+        --hms-info: #0dcaf0;
+        --hms-warning: #ffc107;
+        --hms-danger: #dc3545;
+        --hms-dark: #2c3e50;
+        --hms-light: #f8f9fa;
+        --hms-card-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        --hms-hover-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
 
-        <!-- 🧭 Role-Specific Quick Action Cards -->
-        <div class="row g-4 mb-4">
+    body {
+        background-color: #f4f7f6;
+    }
 
-            @* 🔑 ADMIN DASHBOARD *@
-            @if (User.IsInRole("Admin"))
-            {
-                <!-- 🎉 Welcome Banner -->
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="card bg-primary text-white border-0 shadow-sm">
-                            <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap">
-                                <div>
-                                    <h2 class="fw-bold mb-1">Welcome back, @displayName! 👋</h2>
-                                    <p class="mb-0 opacity-90">
-                                        Logged in as <strong>@userRole</strong> | @DateTime.Now.ToString("dddd, MMMM dd, yyyy")
-                                    </p>
-                                </div>
-                                <div class="mt-3 mt-md-0">
-                                    <span class="badge bg-light text-primary px-3 py-2 fs-6">
-                                        <i class="bi bi-hospital me-1"></i> MediCare HMS
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    /* --- Modernized Banner --- */
+    .welcome-banner {
+        background: linear-gradient(135deg, var(--hms-primary) 0%, #0046af 100%);
+        border-radius: 15px;
+        overflow: hidden;
+    }
 
-                <div class="col-xl-3 col-md-6">
-                    <div class="card h-100 shadow-sm border-0 hover-shadow">
-                        <div class="card-body text-center p-4">
-                            <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
-                                <i class="bi bi-people fs-2 text-primary"></i>
-                            </div>
-                            <h5 class="card-title mb-2">Patients</h5>
-                            <p class="text-muted small mb-3">Manage registrations & records</p>
-                            <a asp-controller="Patients" asp-action="Index" class="btn btn-outline-primary btn-sm w-100">View All</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-md-6">
-                    <div class="card h-100 shadow-sm border-0 hover-shadow">
-                        <div class="card-body text-center p-4">
-                            <div class="bg-success bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
-                                <i class="bi bi-person-badge fs-2 text-success"></i>
-                            </div>
-                            <h5 class="card-title mb-2">Doctors</h5>
-                            <p class="text-muted small mb-3">Staff management & schedules</p>
-                            <a asp-controller="Doctors" asp-action="Index" class="btn btn-outline-success btn-sm w-100">Manage</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-md-6">
-                    <div class="card h-100 shadow-sm border-0 hover-shadow">
-                        <div class="card-body text-center p-4">
-                            <div class="bg-info bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
-                                <i class="bi bi-calendar-check fs-2 text-info"></i>
-                            </div>
-                            <h5 class="card-title mb-2">Appointments</h5>
-                            <p class="text-muted small mb-3">Monitor daily schedules</p>
-                            <a asp-controller="Appointments" asp-action="Index" class="btn btn-outline-info btn-sm w-100">View Calendar</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-md-6">
-                    <div class="card h-100 shadow-sm border-0 hover-shadow">
-                        <div class="card-body text-center p-4">
-                            <div class="bg-warning bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
-                                <i class="bi bi-shield-lock fs-2 text-warning"></i>
-                            </div>
-                            <h5 class="card-title mb-2">Roles & Access</h5>
-                            <p class="text-muted small mb-3">Configure permissions</p>
-                            <a asp-controller="Roles" asp-action="Index" class="btn btn-outline-warning btn-sm w-100">Configure</a>
-                        </div>
-                    </div>
-                </div>
-            }
+    /* --- Moving Message (Dynamic) --- */
+    .ticker-wrap {
+        width: 100%;
+        overflow: hidden;
+        background-color: #fff0f3; /* Light pink hint per your request */
+        border-bottom: 2px solid var(--hms-danger);
+        padding: 10px 0;
+        margin-bottom: 2rem;
+    }
 
-            @* 🩺 DOCTOR DASHBOARD *@
-            else if (User.IsInRole("Doctor"))
-            {
-                <!-- 🎉 Welcome Banner -->
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="card bg-primary text-white border-0 shadow-sm">
-                            <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap">
-                                <div>
-                                    <h2 class="fw-bold mb-1">Welcome back, @displayName! 👋</h2>
-                                    <p class="mb-0 opacity-90">
-                                        Logged in as <strong>@userRole</strong> | @DateTime.Now.ToString("dddd, MMMM dd, yyyy")
-                                    </p>
-                                </div>
-                                <div class="mt-3 mt-md-0">
-                                    <span class="badge bg-light text-primary px-3 py-2 fs-6">
-                                        <i class="bi bi-hospital me-1"></i> MediCare HMS
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    .ticker {
+        display: inline-block;
+        white-space: nowrap;
+        padding-right: 100%;
+        animation: ticker-move 30s linear infinite;
+    }
 
-                <div class="col-xl-4 col-md-6">
-                    <div class="card h-100 shadow-sm border-0 hover-shadow">
-                        <div class="card-body text-center p-4">
-                            <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
-                                <i class="bi bi-calendar-check fs-2 text-primary"></i>
-                            </div>
-                            <h5 class="card-title mb-2">Today's Schedule</h5>
-                            <p class="text-muted small mb-3">View upcoming appointments</p>
-                            <a asp-controller="Appointments" asp-action="Index" class="btn btn-outline-primary btn-sm w-100">Open Calendar</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-4 col-md-6">
-                    <div class="card h-100 shadow-sm border-0 hover-shadow">
-                        <div class="card-body text-center p-4">
-                            <div class="bg-success bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
-                                <i class="bi bi-people fs-2 text-success"></i>
-                            </div>
-                            <h5 class="card-title mb-2">My Patients</h5>
-                            <p class="text-muted small mb-3">Access medical records</p>
-                            <a asp-controller="Patients" asp-action="Index" class="btn btn-outline-success btn-sm w-100">View List</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-4 col-md-6">
-                    <div class="card h-100 shadow-sm border-0 hover-shadow">
-                        <div class="card-body text-center p-4">
-                            <div class="bg-info bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
-                                <i class="bi bi-journal-medical fs-2 text-info"></i>
-                            </div>
-                            <h5 class="card-title mb-2">Prescriptions</h5>
-                            <p class="text-muted small mb-3">Write & review scripts</p>
-                            <a asp-controller="Prescriptions" asp-action="Index" class="btn btn-outline-info btn-sm w-100">Manage</a>
-                        </div>
-                    </div>
-                </div>
-            }
+        .ticker:hover {
+            animation-play-state: paused;
+        }
 
-            @* 🧑‍🦱 PATIENT DASHBOARD *@
-            else if (User.IsInRole("Patient"))
-            {
-                <!-- 🎉 Welcome Banner -->
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="card bg-primary text-white border-0 shadow-sm">
-                            <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap">
-                                <div>
-                                    <h2 class="fw-bold mb-1">Welcome back, @displayName! 👋</h2>
-                                    <p class="mb-0 opacity-90">
-                                        Logged in as <strong>@userRole</strong> | @DateTime.Now.ToString("dddd, MMMM dd, yyyy")
-                                    </p>
-                                </div>
-                                <div class="mt-3 mt-md-0">
-                                    <span class="badge bg-light text-primary px-3 py-2 fs-6">
-                                        <i class="bi bi-hospital me-1"></i> MediCare HMS
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    @@keyframes ticker-move {
+        0% {
+            transform: translate3d(0, 0, 0);
+        }
 
-                <div class="col-xl-4 col-md-6">
-                    <div class="card h-100 shadow-sm border-0 hover-shadow">
-                        <div class="card-body text-center p-4">
-                            <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
-                                <i class="bi bi-calendar-plus fs-2 text-primary"></i>
-                            </div>
-                            <h5 class="card-title mb-2">Book Appointment</h5>
-                            <p class="text-muted small mb-3">Schedule a new visit</p>
-                            <a asp-controller="Appointments" asp-action="BrowseDoctors" class="btn btn-outline-primary btn-sm w-100">Schedule Now</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-4 col-md-6">
-                    <div class="card h-100 shadow-sm border-0 hover-shadow">
-                        <div class="card-body text-center p-4">
-                            <div class="bg-warning bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
-                                <i class="bi bi-clock-history fs-2 text-warning"></i>
-                            </div>
-                            <h5 class="card-title mb-2">My Visits</h5>
-                            <p class="text-muted small mb-3">View appointment history</p>
-                            <a asp-controller="Appointments" asp-action="MyAppointments" class="btn btn-outline-warning btn-sm w-100">View History</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-4 col-md-6">
-                    <div class="card h-100 shadow-sm border-0 hover-shadow">
-                        <div class="card-body text-center p-4">
-                            <div class="bg-success bg-opacity-10 rounded-circle p-3 d-inline-block mb-3">
-                                <i class="bi bi-person-circle fs-2 text-success"></i>
-                            </div>
-                            <h5 class="card-title mb-2">My Profile</h5>
-                            <p class="text-muted small mb-3">Update contact details</p>
-                            <a asp-controller="Account" asp-action="Profile" class="btn btn-outline-success btn-sm w-100">Edit Info</a>
-                        </div>
-                    </div>
-                </div>
-            }
-            @* 🏠 NORMAL / GUEST UI *@
-            else
-            {
-                @* <div class="col-12">
-                    <div class="card border-0 shadow-sm bg-light">
-                        <div class="card-body p-5 text-center">
-                            <div class="mb-4">
-                                <i class="bi bi-shield-lock display-1 text-muted opacity-50"></i>
-                            </div>
-                            <h3 class="fw-bold">Access Restricted</h3>
-                            <p class="text-muted mx-auto" style="max-width: 500px;">
-                                You are currently viewing the public dashboard. To access medical records, book appointments, or manage staff, please sign in to your account.
-                            </p>
-                            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-4">
-                            <a asp-area="Identity" class="btn btn-primary btn-lg px-4 me-sm-3" asp-controller="Account" asp-action="Login">
-                                <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
-                            </a>
-                            <a asp-area="Identity" class="btn btn-outline-secondary btn-lg px-4" asp-controller="Account" asp-action="Register">
-                                Create Account
-                            </a>
-                        </div>
-                        </div>
-                    </div>
-                </div> *@
-                <div style="font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f8f9fa; padding: 20px 0 ;">
+        100% {
+            transform: translate3d(-100%, 0, 0);
+        }
+    }
 
-                    <div style="background-color:lightpink color: #ffffff; padding: 12px 0; border-bottom: 3px solid">
-                        <marquee behavior="scroll" direction="left" scrollamount="8" onmouseover="this.stop();" onmouseout="this.start();" style="font-size: 1.1rem; font-weight: 500; cursor: pointer;">
-                            <span style="margin-right: 50px;">🌟 <strong>WELCOME TO MediCare HOSPITAL</strong></span>
-                            <span style="margin-right: 50px;">🏥 <strong>UPDATE:</strong> Our new Cardiology Wing is now open to the public.</span>
-                            <span style="margin-right: 50px;">📞 <strong>24/7 HELPLINE:</strong> Call +88012345678901 for immediate medical guidance.</span>
-                            <span style="margin-right: 50px;">💉 <strong>WELLNESS:</strong> Seasonal flu shots are available at the outpatient clinic daily.</span>
-                        </marquee>
-                    </div>
+    /* --- Action Cards --- */
+    .action-card {
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        box-shadow: var(--hms-card-shadow);
+    }
 
-                    <section style="display: flex; flex-wrap: wrap; justify-content: center; gap: 25px; padding: 40px 20px;">
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hms-hover-shadow);
+        }
 
-                        <div style="background: #ffffff; width: 280px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-top: 6px solid #d9534f; text-align: center; padding: 30px;">
-                            <div style="font-size: 45px; margin-bottom: 15px;">🚑</div>
-                            <h3 style="margin: 0 0 12px; color: #2c3e50; font-size: 1.5rem;">Emergency</h3>
-                            <p style="color: #777; line-height: 1.5; margin-bottom: 20px;">Immediate 24/7 care for life-threatening conditions.</p>
-                            <a href="#" style="background: #d9534f; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">+88012345678901 ~ 6</a>
-                        </div>
+    .icon-shape {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin: 0 auto 1rem;
+    }
 
-                        <div style="background: #ffffff; width: 280px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-top: 6px solid #007bff; text-align: center; padding: 30px;">
-                            <div style="font-size: 45px; margin-bottom: 15px;">👨‍⚕️</div>
-                            <h3 style="margin: 0 0 12px; color: #2c3e50; font-size: 1.5rem;">Find Doctors</h3>
-                            <p style="color: #777; line-height: 1.5; margin-bottom: 20px;">Search our directory of world-class medical specialists.</p>
-                            <a asp-controller="Account" asp-action="Login" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Search Now</a>
-                        </div>
+    /* --- Footer Modernization --- */
+    .hospital-footer {
+        background-color: var(--hms-dark);
+        color: #ecf0f1;
+        padding: 50px 0 20px;
+        margin-top: 4rem;
+    }
 
-                        <div style="background: #ffffff; width: 280px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-top: 6px solid #17a2b8; text-align: center; padding: 30px;">
-                            <div style="font-size: 45px; margin-bottom: 15px;">📅</div>
-                            <h3 style="margin: 0 0 12px; color: #2c3e50; font-size: 1.5rem;">Appointments</h3>
-                            <p style="color: #777; line-height: 1.5; margin-bottom: 20px;">Skip the wait and schedule your visit online today.</p>
-                            <a asp-controller="Account" asp-action="Login" style="background: #17a2b8; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Book Visit</a>
-                        </div>
+    .footer-col h4 {
+        color: #fff;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
 
-                    </section>
-                </div>
-                }
+        .footer-col h4::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -5px;
+            width: 40px;
+            height: 2px;
+            background: var(--hms-primary);
+        }
 
-        <!-- 📊 Dashboard Bottom Section -->
-        <div class="row g-4">
-            <!-- Quick Stats / Activity Panel -->
-            <div class="col-lg-8">
-                <div class="card shadow-sm border-0 h-100">
-                    <div class="card-header bg-white border-0 pt-3 d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 fw-bold">📈 Quick Overview</h5>
-                        <span class="badge bg-secondary">Live Data</span>
-                    </div>
-                    <div class="card-body text-center py-5 text-muted">
-                        <i class="bi bi-graph-up-arrow display-4 mb-3 d-block"></i>
-                        <p class="mb-2 fw-medium">Analytics & reporting will appear here</p>
-                        <small>Connect this section to your service layer to show real-time counts, upcoming appointments, or revenue stats.</small>
-                    </div>
-                </div>
+    .emergency-alert-box {
+        background: rgba(255, 255, 255, 0.05);
+        border-left: 4px solid var(--hms-warning);
+        padding: 20px;
+        border-radius: 8px;
+    }
+</style>
+
+<div class="container-fluid py-4 px-lg-4">
+
+    @if (!User.Identity.IsAuthenticated || User.IsInRole("Normal") || User.IsInRole("Patient"))
+    {
+        <div class="ticker-wrap shadow-sm">
+            <div class="ticker">
+                <span class="mx-4">🌟 <strong>WELCOME TO MediCare:</strong> Accepting new patients for 2026.</span>
+                <span class="mx-4">🏥 <strong>UPDATE:</strong> New Cardiology Wing is now operational.</span>
+                <span class="mx-4">📞 <strong>24/7 HELPLINE:</strong> +88012345678901</span>
+                <span class="mx-4">💉 <strong>WELLNESS:</strong> Seasonal flu shots available daily.</span>
             </div>
+        </div>
+    }
 
-            <!-- Hospital Notices -->
-            <div class="col-lg-4">
-                <div class="card shadow-sm border-0 h-100">
-                    <div class="card-header bg-white border-0 pt-3">
-                        <h5 class="mb-0 fw-bold">📢 Hospital Notices</h5>
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card welcome-banner text-white border-0 shadow-sm">
+                <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap">
+                    <div>
+                        <h2 class="fw-bold mb-1">Welcome back, @displayName! 👋</h2>
+                        <p class="mb-0 opacity-75">
+                            Role: <span class="badge bg-white text-primary">@userRole</span> | @DateTime.Now.ToString("D")
+                        </p>
                     </div>
-                    <div class="card-body p-0">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex align-items-center px-4 py-3">
-                                <i class="bi bi-info-circle text-primary me-3"></i>
-                                <span>Clinic hours updated: 9 AM - 6 PM</span>
-                            </li>
-                            <li class="list-group-item d-flex align-items-center px-4 py-3">
-                                <i class="bi bi-check-circle text-success me-3"></i>
-                                <span>Online payment now available</span>
-                            </li>
-                            <li class="list-group-item d-flex align-items-center px-4 py-3">
-                                <i class="bi bi-exclamation-triangle text-warning me-3"></i>
-                                <span>Flu vaccination drive next week</span>
-                            </li>
-                        </ul>
+                    <div class="d-none d-md-block">
+                        <i class="bi bi-hospital display-4 opacity-25"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
- </body>
 
-
-<!-- ✨ Optional: Add subtle hover effects -->
-<style>
-    .hover-shadow {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-        .hover-shadow:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1) !important;
+    <div class="row g-4 mb-5">
+        @if (User.IsInRole("Admin"))
+        {
+            <div class="col-md-4">
+                <div class="card h-100 action-card text-center p-4">
+                    <div class="icon-shape bg-primary bg-opacity-10 text-primary">
+                        <i class="bi bi-people fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold">Patients</h5>
+                    <p class="text-muted small">Manage registration & records</p>
+                    <a asp-controller="Patients" asp-action="Index" class="btn btn-primary btn-sm rounded-pill">View All</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 action-card text-center p-4">
+                    <div class="icon-shape bg-success bg-opacity-10 text-success">
+                        <i class="bi bi-person-badge fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold">Doctors</h5>
+                    <p class="text-muted small">Staffing & scheduling</p>
+                    <a asp-controller="Doctors" asp-action="Index" class="btn btn-success btn-sm rounded-pill">Manage</a>
+                </div>
+            </div>
+            @* <div class="col-xl-3 col-md-6">
+                <div class="card h-100 action-card text-center p-4">
+                    <div class="icon-shape bg-info bg-opacity-10 text-info">
+                        <i class="bi bi-calendar-check fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold">Appointments</h5>
+                    <p class="text-muted small">Monitor daily logs</p>
+                    <a asp-controller="Appointments" asp-action="Index" class="btn btn-info btn-sm text-white rounded-pill">Calendar</a>
+                </div>
+            </div> *@
+            <div class="col-md-4">
+                <div class="card h-100 action-card text-center p-4">
+                    <div class="icon-shape bg-warning bg-opacity-10 text-warning">
+                        <i class="bi bi-shield-lock fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold">Security</h5>
+                    <p class="text-muted small">Roles & Permissions</p>
+                    <a asp-controller="Home" asp-action="ComingSoon" class="btn btn-warning btn-sm text-white rounded-pill">Configure</a>
+                </div>
+            </div>
         }
+        else if (User.IsInRole("Doctor"))
+        {
+            <div class="col-md-4">
+                <div class="card h-100 action-card text-center p-4">
+                    <div class="icon-shape bg-primary bg-opacity-10 text-primary">
+                        <i class="bi bi-calendar2-week fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold">Schedule</h5>
+                    <a asp-controller="Appointments" asp-action="Index" class="btn btn-outline-primary btn-sm">Open</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 action-card text-center p-4">
+                    <div class="icon-shape bg-success bg-opacity-10 text-success">
+                        <i class="bi bi-person-lines-fill fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold">My Patients</h5>
+                    <a asp-controller="Patients" asp-action="Index" class="btn btn-outline-success btn-sm">Records</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 action-card text-center p-4">
+                    <div class="icon-shape bg-info bg-opacity-10 text-info">
+                        <i class="bi bi-file-earmark-medical fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold">Prescriptions</h5>
+                    <a asp-controller="Prescriptions" asp-action="Index" class="btn btn-outline-info btn-sm">Manage</a>
+                </div>
+            </div>
+        }
+        else if (User.IsInRole("Patient"))
+        {
+            <div class="col-md-4">
+                <div class="card h-100 action-card text-center p-4">
+                    <div class="icon-shape bg-primary bg-opacity-10 text-primary">
+                        <i class="bi bi-plus-circle fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold">Book Visit</h5>
+                    <a asp-controller="Appointments" asp-action="BrowseDoctors" class="btn btn-primary btn-sm rounded-pill">Schedule Now</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 action-card text-center p-4">
+                    <div class="icon-shape bg-warning bg-opacity-10 text-warning">
+                        <i class="bi bi-clock-history fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold">My History</h5>
+                    <a asp-controller="Appointments" asp-action="MyAppointments" class="btn btn-warning btn-sm text-white rounded-pill">View Records</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 action-card text-center p-4">
+                    <div class="icon-shape bg-success bg-opacity-10 text-success">
+                        <i class="bi bi-person-circle fs-2"></i>
+                    </div>
+                    <h5 class="fw-bold">My Profile</h5>
+                    <a asp-controller="Home" asp-action="ComingSoon" class="btn btn-success btn-sm rounded-pill">Edit Info</a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="col-md-4">
+                <div class="card h-100 action-card text-center p-4 border-top border-danger border-5">
+                    <div class="fs-1">🚑</div>
+                    <h5 class="fw-bold mt-2">Emergency</h5>
+                    <p class="text-muted small">Critical care available 24/7</p>
+                    <a href="#" class="btn btn-danger w-100 fw-bold">Call Helpline</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 action-card text-center p-4 border-top border-primary border-5">
+                    <div class="fs-1">👨‍⚕️</div>
+                    <h5 class="fw-bold mt-2">Specialists</h5>
+                    <p class="text-muted small">Find the right care</p>
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-primary w-100 fw-bold">Search Now</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 action-card text-center p-4 border-top border-info border-5">
+                    <div class="fs-1">📅</div>
+                    <h5 class="fw-bold mt-2">Book Online</h5>
+                    <p class="text-muted small">Easy appointment booking</p>
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-info text-white w-100 fw-bold">Book Visit</a>
+                </div>
+            </div>
+        }
+    </div>
 
- /*     body {
-		background-image: url('/images/hospital-bg.jpg');
-		background-size: cover;
-        background-position: center;
-	} */
-</style>
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card action-card h-100 shadow-sm border-0" style="border-radius: 16px;">
+                <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-graph-up text-primary me-2"></i>Hospital Overview</h5>
+                    <span class="badge bg-light text-primary border border-primary px-3 rounded-pill">Live Status</span>
+                </div>
+                <div class="card-body py-4">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="p-3 border rounded-3 bg-light bg-opacity-50 text-center">
+                                <div class="text-primary mb-1"><i class="bi bi-people-fill fs-3"></i></div>
+                                <h3 class="fw-bold mb-0">1,284</h3>
+                                <p class="text-muted small mb-0">Total Patients</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 border rounded-3 bg-light bg-opacity-50 text-center">
+                                <div class="text-success mb-1"><i class="bi bi-door-open-fill fs-3"></i></div>
+                                <h3 class="fw-bold mb-0">42</h3>
+                                <p class="text-muted small mb-0">Available Beds</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 border rounded-3 bg-light bg-opacity-50 text-center">
+                                <div class="text-warning mb-1"><i class="bi bi-activity fs-3"></i></div>
+                                <h3 class="fw-bold mb-0">15</h3>
+                                <p class="text-muted small mb-0">Surgeries Today</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-4 bg-light rounded-3 text-center border-dashed border-2">
+                        <div class="d-flex justify-content-between align-items-end mb-3" style="height: 100px;">
+                            <div class="bg-primary opacity-25 rounded-top" style="width: 12%; height: 40%;"></div>
+                            <div class="bg-primary opacity-50 rounded-top" style="width: 12%; height: 60%;"></div>
+                            <div class="bg-primary opacity-75 rounded-top" style="width: 12%; height: 90%;"></div>
+                            <div class="bg-primary rounded-top" style="width: 12%; height: 75%;"></div>
+                            <div class="bg-primary opacity-50 rounded-top" style="width: 12%; height: 50%;"></div>
+                            <div class="bg-primary opacity-25 rounded-top" style="width: 12%; height: 30%;"></div>
+                        </div>
+                        <p class="text-muted small mb-0"><i class="bi bi-info-circle me-1"></i> Patient flow has increased by <strong>12%</strong> this week.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card action-card h-100">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-megaphone text-danger me-2"></i>Staff Notices</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item px-4 py-3 border-0">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1 fw-bold text-primary">Clinic Hours</h6>
+                                <small class="text-muted">Today</small>
+                            </div>
+                            <p class="mb-1 small text-muted">Updated shift timings: 09:00 AM - 06:00 PM</p>
+                        </div>
+                        <div class="list-group-item px-4 py-3 border-0 bg-light">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1 fw-bold text-success">Payments</h6>
+                                <small class="text-muted">New</small>
+                            </div>
+                            <p class="mb-1 small text-muted">Online billing module is now fully encrypted.</p>
+                        </div>
+                        <div class="list-group-item px-4 py-3 border-0">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1 fw-bold text-warning">Vaccination</h6>
+                                <small class="text-muted">Alert</small>
+                            </div>
+                            <p class="mb-1 small text-muted">Flu drive starts Monday in Block C.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+    </div>
+    
+
+        
+    </div>
+
+</div>
+
+
+<footer class="hospital-footer">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4 footer-col">
+                <h2 class="fw-bold text-primary mb-3">MediCare HMS</h2>
+                <p class="text-muted">Leading the way in medical excellence and patient-centered care. Trust us with your health journey.</p>
+                <div class="mt-4">
+                    <p class="mb-2"><i class="bi bi-geo-alt-fill text-primary me-2"></i> 123 Healthcare Way, Dhaka</p>
+                    <p class="mb-2"><i class="bi bi-telephone-fill text-primary me-2"></i> (555) 123-4567</p>
+                    <p><i class="bi bi-envelope-fill text-primary me-2"></i> help@medicare.com</p>
+                </div>
+            </div>
+
+            <div class="col-lg-4 footer-col">
+                <h4>Trust & Quality</h4>
+                <ul class="list-unstyled text-muted">
+                    <li class="mb-2"><i class="bi bi-award text-warning me-2"></i> Top 10 Regional Hospital</li>
+                    <li class="mb-2"><i class="bi bi-shield-check text-success me-2"></i> Joint Commission Certified</li>
+                    <li class="mb-2"><i class="bi bi-star-fill text-warning me-2"></i> 5-Star Patient Reviews</li>
+                    <li><i class="bi bi-leaf text-success me-2"></i> Green Initiative 2026</li>
+                </ul>
+            </div>
+
+            <div class="col-lg-4 footer-col">
+                <div class="emergency-alert-box">
+                    <h5 class="text-warning fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>24/7 Support</h5>
+                    <p class="small">Our ER is always open. For life-threatening emergencies, call our hotline immediately.</p>
+                    <a href="#" class="btn btn-sm btn-outline-light mt-2">Careers</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5 pt-3 border-top border-secondary text-center">
+            <div class="col-md-6 text-md-start">
+                <p class="small text-muted mb-0">&copy; 2026 MediCare Hospital. All rights reserved.</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <div class="small">
+                    <a href="#" class="text-muted text-decoration-none me-3">Privacy</a>
+                    <a href="#" class="text-muted text-decoration-none me-3">HIPAA</a>
+                    <a href="#" class="text-muted text-decoration-none">Sitemap</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
