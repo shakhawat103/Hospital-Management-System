@@ -27,7 +27,10 @@
         <div class="container-fluid">
             <!-- 🏥 Brand Logo -->
             <a class="navbar-brand d-flex align-items-center" href="@Url.Action("Index", "Home")">
-                <i class="bi bi-hospital fs-4 me-2"></i>
+                <img src="~/images/hp-logo.png"
+                     alt="MediCare Logo"
+                     style="width: 50px; height: 50px; object-fit: contain; margin-right: 10px;" />
+
                 <span class="fw-bold tracking-tight">MediCare HMS</span>
             </a>
 
@@ -174,18 +177,6 @@
             @RenderBody()
         </div>
     </main>
-
-    <!-- 🦶 FOOTER -->
-    <footer class="bg-white border-top py-3 mt-auto">
-        <div class="container text-center text-muted">
-            <small>
-                &copy; @DateTime.Now.Year <strong>MediCare HMS</strong> | 
-                <a href="#" class="text-decoration-none me-2">Privacy Policy</a> | 
-                <a href="#" class="text-decoration-none me-2">Terms of Service</a> | 
-                <a href="#" class="text-decoration-none">Support</a>
-            </small>
-        </div>
-    </footer>
 
     <!-- 📦 SCRIPTS -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
