@@ -22,12 +22,33 @@ public class AppointmentsController : Controller
         _patientService = patientService;
     }
 
-    // === 👨‍⚕️ PATIENT: Browse Available Doctors ===
-    [Authorize(Roles = "Patient")]  // ✅ Only patients can browse doctors to book
+    // === 🩺 PATIENT: Browse Doctors ===
+    [Authorize(Roles = "Patient")]
+    [HttpGet] // ✅ NO route string! Uses default convention routing
     public async Task<IActionResult> BrowseDoctors()
     {
         var doctors = await _appointmentService.GetAvailableDoctorsAsync();
         return View(doctors);
+    }
+
+    // === 📋 PATIENT: My Appointments History ===
+    [Authorize(Roles = "Patient")]
+    [HttpGet] // ✅ NO route string!
+    public async Task<IActionResult> MyAppointments()
+    {
+        // 1. Safely get patient ID
+        var patientId = await _patientService.GetCurrentPatientIdAsync(User);
+        if (!patientId.HasValue)
+        {
+            TempData["Warning"] = "⚠️ Your account is not linked to a patient profile. Please contact admin.";
+            return RedirectToAction("Index", "Home");
+        }
+
+        // 2. Fetch appointments
+        var appointments = await _appointmentService.GetPatientAppointmentsAsync(patientId.Value);
+
+        // 3. Return view (even if empty)
+        return View(appointments);
     }
 
     // === 📅 PATIENT: Book Appointment Form ===
@@ -76,18 +97,6 @@ public class AppointmentsController : Controller
         }
     }
 
-    // === 📋 PATIENT: View My Appointments ===
-    [Authorize(Roles = "Patient")]
-    public async Task<IActionResult> MyAppointments()
-    {
-        // Get current patient's ID
-        var patientId = await _patientService.GetCurrentPatientIdAsync(User);
-        if (!patientId.HasValue)
-            return RedirectToAction("Index", "Home");  // Or show error
-
-        var appointments = await _appointmentService.GetPatientAppointmentsAsync(patientId.Value);
-        return View(appointments);
-    }
 
     // === ❌ PATIENT: Cancel Appointment ===
     [Authorize(Roles = "Patient")]

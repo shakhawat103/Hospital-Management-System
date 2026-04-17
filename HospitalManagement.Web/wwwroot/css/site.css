@@ -40,3 +40,73 @@ body {
 .text-muted {
     color: #6c757d !important;
 }
+.hover-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.hover-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.1) !important;
+}
+
+/* ?? Mobile Responsive Table Transformation (< 768px) */
+@media (max-width: 767.98px) {
+    .table-responsive-stack {
+        border: none !important;
+    }
+    .table-responsive-stack thead {
+        display: none; /* Hide header on mobile */
+    }
+    .table-responsive-stack tbody tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        background: #fff;
+    }
+    .table-responsive-stack td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #f8f9fa;
+        font-size: 0.95rem;
+    }
+    .table-responsive-stack td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #6c757d;
+        min-width: 70px;
+        margin-right: 0.5rem;
+    }
+    .table-responsive-stack td:last-child {
+        border-bottom: none;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    .table-responsive-stack td:last-child .btn-group {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+    .table-responsive-stack td:last-child .btn {
+        flex: 1;
+        min-width: 0;
+    }
+
+   
+}
+/* Smooth hover transition for footer links */
+.hover-opacity-100 {
+    transition: opacity 0.2s ease;
+}
+
+    .hover-opacity-100:hover {
+        opacity: 1 !important;
+    }
+
+    /* Optional: Add subtle underline on hover */
+    .hover-opacity-100:hover {
+        text-decoration: underline !important;
+        text-underline-offset: 4px;
+    }

@@ -1,21 +1,26 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using HospitalManagement.Application.Services.PatientService;
 using HospitalManagement.Core.DTOs.Patients;
-using HospitalManagement.Application.Services.PatientService;
+using HospitalManagement.Core.Entities.Identity;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 
 namespace HospitalManagement.Web.Controllers;
 
-[Authorize(Roles ="Admin")] 
+[Authorize] 
 public class PatientsController : Controller
 {
     private readonly IPatientService _patientService;
 
-    public PatientsController(IPatientService patientService) =>
+    public PatientsController(IPatientService patientService, UserManager<ApplicationUser> userManager) // Add parameter
+    {
         _patientService = patientService;
+    }
 
     // 📋 GET: /Patients - List all
     // 📋 GET: /Patients?page=2&pageSize=10&search=John
     // 📋 GET: /Patients?page=2&pageSize=10&search=John
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Index(int page = 1, int pageSize = 10, string? search = null)
     {
         // 1. Get paged + filtered patients from service
@@ -33,6 +38,7 @@ public class PatientsController : Controller
     }
 
     // 👁️ GET: /Patients/Details/5
+    [Authorize(Roles = "Admin,Patient")]
     public async Task<IActionResult> Details(int id)
     {
         var patient = await _patientService.GetByIdAsync(id);
@@ -43,6 +49,7 @@ public class PatientsController : Controller
     public IActionResult Create() => View(new CreatePatientDto());
 
     // ➕ POST: /Patients/Create - Handle new patient
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreatePatientDto dto)
@@ -61,47 +68,79 @@ public class PatientsController : Controller
         }
     }
 
-    // ✏️ GET: /Patients/Edit/5 - Show pre-filled form
+    // 🧑‍🦱 Quick link for patients to edit themselves
+    [HttpGet("EditProfile")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> EditProfile()
+    {
+        var patientId = await _patientService.GetCurrentPatientIdAsync(User);
+        if (!patientId.HasValue) return RedirectToAction("Index", "Home");
+
+        return RedirectToAction("Edit", new { id = patientId.Value });
+    }
+
+    // ✅ GET: /Patients/Edit/5
+    [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
         var patient = await _patientService.GetByIdAsync(id);
         if (patient == null) return NotFound();
 
-        // Reuse CreatePatientDto for Edit: split FullName, add Id
-        var names = patient.FullName.Split(' ', 2);
+        // 🔒 Security: Patients can ONLY edit themselves
+        if (User.IsInRole("Patient"))
+        {
+            var currentPatientId = await _patientService.GetCurrentPatientIdAsync(User);
+            if (currentPatientId != id) return Forbid(); // 403 if trying to edit others
+        }
+
+        // Map to DTO
+        var nameParts = patient.FullName.Split(' ', 2);
         var dto = new CreatePatientDto
         {
-            Id = patient.Id,  // ✅ Set Id for Edit
-            FirstName = names[0],
-            LastName = names.Length > 1 ? names[1] : "",
+            Id = patient.Id,
+            FirstName = nameParts[0],
+            LastName = nameParts.Length > 1 ? nameParts[1] : "",
             DateOfBirth = patient.DateOfBirth,
             Phone = patient.Phone,
             Email = patient.Email
         };
-        return View("Create", dto);  // ✅ Reuse Create.cshtml view!
+
+        // Pass role context to view
+        ViewBag.IsSelfEdit = User.IsInRole("Patient");
+        return View(dto);
     }
 
-    // ✏️ POST: /Patients/Edit - Handle update
+    // ✅ POST: /Patients/Edit
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(CreatePatientDto dto)
     {
-        if (!ModelState.IsValid) return View("Create", dto);  // Reuse Create view for errors
-        if (!dto.Id.HasValue) return NotFound();
+        if (!ModelState.IsValid)
+        {
+            ViewBag.IsSelfEdit = User.IsInRole("Patient");
+            return View(dto);
+        }
 
-        try
+        // 🔒 Security check before saving
+        if (User.IsInRole("Patient"))
         {
-            var success = await _patientService.UpdateAsync(dto);
-            return success ? RedirectToAction(nameof(Index)) : NotFound();
+            var currentPatientId = await _patientService.GetCurrentPatientIdAsync(User);
+            if (currentPatientId != dto.Id) return Forbid();
         }
-        catch (InvalidOperationException ex)
-        {
-            ModelState.AddModelError(string.Empty, ex.Message);
-            return View("Create", dto);  // Reuse Create view for errors
-        }
+
+        var success = await _patientService.UpdateAsync(dto);
+        if (!success) return NotFound();
+
+        // 🔄 Redirect based on WHO is editing
+        if (User.IsInRole("Patient"))
+            return RedirectToAction("Index", "Home"); // Patient → Home
+        else
+            return RedirectToAction("Index");         // Admin/Staff → Patients Index
     }
 
+
     // 🗑️ POST: /Patients/Delete/5 - Soft delete
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

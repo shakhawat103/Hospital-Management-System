@@ -361,3 +361,33 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# Local database files (if any)
+*.mdf
+*.ldf
+
+# User secrets (VERY IMPORTANT)
+secrets.json
+
+# App settings with secrets (DO NOT PUSH)
+appsettings.Development.json
+appsettings.Production.json
+
+# Publish output
+PublishProfiles/
+*.pubxml
+*.publishsettings
+
+# Azure / deployment
+.azure/
+
+# Node modules (if any frontend exists)
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db

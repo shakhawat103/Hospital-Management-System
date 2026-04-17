@@ -66,13 +66,36 @@
 
                         <!-- Dynamic Buttons -->
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a asp-action="Index" class="btn btn-secondary">❌ Cancel</a>
-                            @if (isEdit)
+                            @* FORCE navigation by using a standard anchor. 
+       Adding 'type="button"' to an <a> is a trick to ensure 
+       some CSS frameworks don't treat it as a submitter.
+    *@
+
+                            @if (ViewBag.IsSelfEdit == true)
                             {
-                                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-info">👁️ View</a>
+                                <!-- 🧑‍🦱 Patient Cancel → Goes to Home -->
+                                <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">
+                                    ❌ Cancel
+                                </a>
                             }
-                            <button type="submit" class="btn @(isEdit ? "btn-warning" : "btn-primary") px-4">
-                                @(isEdit ? "💾 Save Changes" : "💾 Save Patient")
+                            else
+                            {
+                                <!-- 🛡️ Admin/Staff Cancel → Goes to Patients List -->
+                                <a asp-action="Index" class="btn btn-secondary">
+                                    ❌ Cancel
+                                </a>
+                            }
+
+                            @if (ViewBag.IsSelfEdit != true)
+                            {
+                                <!-- Only admins see "View Details" -->
+                                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-info">
+                                    👁️ View
+                                </a>
+                            }
+
+                            <button type="submit" class="btn btn-warning px-4">
+                                💾 Save Changes
                             </button>
                         </div>
                     </form>

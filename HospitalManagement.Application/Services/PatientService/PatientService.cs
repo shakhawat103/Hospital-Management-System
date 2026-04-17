@@ -216,4 +216,12 @@ public class PatientService : IPatientService
 
         return patient?.Id;
     }
+
+    // Inside PatientService.cs
+    public async Task<Patient?> GetByUserIdAsync(string userId)
+    {
+        var patients = await _unitOfWork.Repository<Patient>()
+            .FindAsync(p => p.UserId == userId);
+        return patients.FirstOrDefault();
+    }
 }

@@ -1,6 +1,7 @@
 ﻿@using HospitalManagement.Core.Entities.Identity
 @using Microsoft.AspNetCore.Identity
 @using HospitalManagement.Core.Entities
+
 @inject UserManager<ApplicationUser> UserManager
 
 @{
@@ -91,18 +92,31 @@
         margin: 0 auto 1rem;
     }
 
-    /* --- Footer Modernization --- */
+    /* --- Footer Modernization (Light Theme) --- */
+    :root {
+        --hms-light-bg: #f8f9fa; /* Clean off-white */
+        --hms-border-soft: #eef2f3; /* Very subtle separator */
+        --hms-primary: #0d6efd; /* Your brand blue */
+        --hms-text-main: #e9ecef; /* Deep charcoal for headings */
+        --hms-text-muted: #e9ecef; /* Soft gray for body text */
+    }
+
     .hospital-footer {
-        background-color: var(--hms-dark);
-        color: #ecf0f1;
-        padding: 50px 0 20px;
+        background-color: #0a2540;
+        /* Changed from light gray to dark gray for visibility on light bg */
+        color: var(--hms-text-muted);
+        padding: 60px 0 30px;
         margin-top: 4rem;
+        border-top: 1px solid var(--hms-border-soft);
     }
 
     .footer-col h4 {
-        color: #fff;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
+        color: var(--hms-text-main);
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        margin-bottom: 1.8rem;
         position: relative;
     }
 
@@ -110,17 +124,44 @@
             content: '';
             position: absolute;
             left: 0;
-            bottom: -5px;
-            width: 40px;
-            height: 2px;
+            bottom: -8px;
+            width: 30px;
+            height: 3px;
             background: var(--hms-primary);
+            border-radius: 2px; /* Rounds the accent line for a softer look */
         }
 
+    /* --- Emergency Box: High Contrast & Professional --- */
     .emergency-alert-box {
-        background: rgba(255, 255, 255, 0.05);
+        background-color:whitesmoke; /* Clean white against the off-white footer */
+        color:red;
         border-left: 4px solid var(--hms-warning);
-        padding: 20px;
-        border-radius: 8px;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04); /* Soft "floating" effect */
+        transition: transform 0.3s ease;
+    }
+
+        .emergency-alert-box:hover {
+            transform: scale(1.02); /* Subtle interaction */
+        }
+
+    .btn-link-custom {
+        font-size: 0.88rem;
+        color: var(--hms-text-muted);
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+        .btn-link-custom:hover {
+            color: var(--hms-primary);
+            transform: translateX(3px); /* Slide effect instead of vertical for menu items */
+        }
+
+    .border-top-refined {
+        border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
     }
 </style>
 
@@ -130,10 +171,11 @@
     {
         <div class="ticker-wrap shadow-sm">
             <div class="ticker">
-                <span class="mx-4">🌟 <strong>WELCOME TO MediCare:</strong> Accepting new patients for 2026.</span>
-                <span class="mx-4">🏥 <strong>UPDATE:</strong> New Cardiology Wing is now operational.</span>
-                <span class="mx-4">📞 <strong>24/7 HELPLINE:</strong> +88012345678901</span>
-                <span class="mx-4">💉 <strong>WELLNESS:</strong> Seasonal flu shots available daily.</span>
+                <span class="mx-4">🏥 <strong>Welcome to MediCare:</strong> Your health, our priority.</span>
+                <span class="mx-4">📋 <strong>Registration:</strong> New patients must register first to access services.</span>
+                <span class="mx-4">🏥 <strong>Now Open:</strong> New Cardiology Wing is officially operational.</span>
+                <span class="mx-4">📞 <strong>Help:</strong> 24/7 medical support line +88012345678901.</span>
+                <span class="mx-4">✅ <strong>Vaccines:</strong> Daily flu shots available for all members.</span>
             </div>
         </div>
     }
@@ -256,7 +298,11 @@
                         <i class="bi bi-person-circle fs-2"></i>
                     </div>
                     <h5 class="fw-bold">My Profile</h5>
-                    <a asp-controller="Home" asp-action="ComingSoon" class="btn btn-success btn-sm rounded-pill">Edit Info</a>
+
+                    <a asp-controller="Patients" asp-action="EditProfile"
+                       class="btn btn-success btn-sm rounded-pill">
+                        Edit Info
+                    </a>
                 </div>
             </div>
         }
@@ -370,7 +416,6 @@
        
     </div>
     
-
         
     </div>
 
@@ -384,8 +429,8 @@
                 <h2 class="fw-bold text-primary mb-3">MediCare HMS</h2>
                 <p class="text-muted">Leading the way in medical excellence and patient-centered care. Trust us with your health journey.</p>
                 <div class="mt-4">
-                    <p class="mb-2"><i class="bi bi-geo-alt-fill text-primary me-2"></i> 123 Healthcare Way, Dhaka</p>
-                    <p class="mb-2"><i class="bi bi-telephone-fill text-primary me-2"></i> (555) 123-4567</p>
+                    <p class="mb-2"><i class="bi bi-geo-alt-fill text-primary me-2"></i> Dhaka Cantonment, Dhaka - 1206</p>
+                    <p class="mb-2"><i class="bi bi-telephone-fill text-primary me-2"></i> +88012345678901</p>
                     <p><i class="bi bi-envelope-fill text-primary me-2"></i> help@medicare.com</p>
                 </div>
             </div>
@@ -401,24 +446,36 @@
             </div>
 
             <div class="col-lg-4 footer-col">
-                <div class="emergency-alert-box">
-                    <h5 class="text-warning fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>24/7 Support</h5>
-                    <p class="small">Our ER is always open. For life-threatening emergencies, call our hotline immediately.</p>
-                    <a href="#" class="btn btn-sm btn-outline-light mt-2">Careers</a>
+                <div class="emergency-alert-box p-4 rounded-3 text-white" style="background-color: #0a2540;">
+                    <h6 class="fw-bold mb-2">
+                        <i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i>24/7 Emergency
+                    </h6>
+                    <p class="small mb-3 opacity-75">Life-threatening emergency? Call our hotline immediately.</p>
+                    <a href="tel:777" class="btn btn-sm btn-danger w-100 fw-bold">
+                        <i class="bi bi-telephone-fill me-2"></i>Call 777 Now
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="row mt-5 pt-3 border-top border-secondary text-center">
-            <div class="col-md-6 text-md-start">
-                <p class="small text-muted mb-0">&copy; 2026 MediCare Hospital. All rights reserved.</p>
+        <div class="row mt-4 pt-4 border-top border-secondary align-items-center">
+            <!-- Left: Copyright & Credits -->
+            <div class="col-lg-6 text-center text-lg-start mb-3 mb-lg-0">
+                <p class="small mb-0 text-light opacity-75">
+                    &copy; @DateTime.Now.Year MediCare HMS. All rights reserved.
+                    <span class="d-block d-sm-inline text-light ms-sm-2">
+                     Developed by <strong class="text-white">Md. Shakhawat Osman Sohail</strong>
+                    </span>
+                </p>
             </div>
-            <div class="col-md-6 text-md-end">
-                <div class="small">
-                    <a href="#" class="text-muted text-decoration-none me-3">Privacy</a>
-                    <a href="#" class="text-muted text-decoration-none me-3">HIPAA</a>
-                    <a href="#" class="text-muted text-decoration-none">Sitemap</a>
-                </div>
+
+            <!-- Right: Legal Links -->
+            <div class="col-lg-6 text-center text-lg-end">
+                <nav aria-label="Footer legal links">
+                    <a href="#" class="text-light text-decoration-none me-3 opacity-75 hover-opacity-100 transition">Privacy Policy</a>
+                    <a href="#" class="text-light text-decoration-none me-3 opacity-75 hover-opacity-100 transition">HIPAA</a>
+                    <a href="#" class="text-light text-decoration-none opacity-75 hover-opacity-100 transition">Sitemap</a>
+                </nav>
             </div>
         </div>
     </div>

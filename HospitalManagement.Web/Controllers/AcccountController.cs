@@ -107,7 +107,7 @@ public class AccountController : Controller
             _logger.LogInformation("New patient registered: {Email}", model.Email);
 
             // Redirect to patient dashboard
-            return RedirectToAction("MyAppointments", "Appointments");
+            return RedirectToAction("Index", "Home");
         }
 
         foreach (var error in result.Errors)

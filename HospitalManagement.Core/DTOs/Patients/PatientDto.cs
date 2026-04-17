@@ -4,6 +4,7 @@
 public class PatientDto
 {
     public int Id { get; set; }
+
     public string FullName { get; set; } = string.Empty;  // Calculated: First + Last
     public DateTime DateOfBirth { get; set; }              // ✅ Added for Edit form
     public int Age { get; set; }                           // Calculated from DOB

@@ -16,4 +16,6 @@ public interface IPatientService
     Task<bool> DeleteAsync(int id);
 
     Task<int?> GetCurrentPatientIdAsync(ClaimsPrincipal user);
+
+    Task<Patient?> GetByUserIdAsync(string userId);
 }
