@@ -19,7 +19,6 @@ public class PatientsController : Controller
 
     // 📋 GET: /Patients - List all
     // 📋 GET: /Patients?page=2&pageSize=10&search=John
-    // 📋 GET: /Patients?page=2&pageSize=10&search=John
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Index(int page = 1, int pageSize = 10, string? search = null)
     {
@@ -83,7 +82,7 @@ public class PatientsController : Controller
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        var patient = await _patientService.GetByIdAsync(id);
+        var patient = await _patientService.GetForEditAsync(id);
         if (patient == null) return NotFound();
 
         // 🔒 Security: Patients can ONLY edit themselves
@@ -93,21 +92,9 @@ public class PatientsController : Controller
             if (currentPatientId != id) return Forbid(); // 403 if trying to edit others
         }
 
-        // Map to DTO
-        var nameParts = patient.FullName.Split(' ', 2);
-        var dto = new CreatePatientDto
-        {
-            Id = patient.Id,
-            FirstName = nameParts[0],
-            LastName = nameParts.Length > 1 ? nameParts[1] : "",
-            DateOfBirth = patient.DateOfBirth,
-            Phone = patient.Phone,
-            Email = patient.Email
-        };
-
         // Pass role context to view
         ViewBag.IsSelfEdit = User.IsInRole("Patient");
-        return View(dto);
+        return View(patient);
     }
 
     // ✅ POST: /Patients/Edit

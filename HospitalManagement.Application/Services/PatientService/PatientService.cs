@@ -36,7 +36,7 @@ public class PatientService : IPatientService
 
     /// <summary>
     /// Get one patient by ID
-    /// Returns: PatientDto (for display) or null if not found
+    /// Returns: CreatePatientDto (for display) or null if not found
     /// </summary>
     public async Task<PatientDto?> GetByIdAsync(int id)
     {
@@ -52,7 +52,38 @@ public class PatientService : IPatientService
 
         // 3. Convert Entity → DTO using AutoMapper
         //    MappingProfile calculates FullName, Age automatically
+        
         return _mapper.Map<PatientDto>(patient);
+    }
+
+    // GET FOR THE EDIT VIEW (same as GetById but returns CreatePatientDto for form population)
+    public async Task<CreatePatientDto?> GetForEditAsync(int id)
+    {
+        // 1. Fetch from database via generic repository
+        var patient = await _unitOfWork.Repository<Patient>().GetByIdAsync(id);
+
+        // 2. If not found, return null (controller handles 404)
+        if (patient == null)
+        {
+            _logger.LogWarning("Patient with ID {Id} not found", id);
+            return null;
+        }
+
+        // 3. Convert Entity → DTO using AutoMapper
+        //    MappingProfile calculates FullName, Age automatically
+
+       
+        //var dto = new CreatePatientDto
+        //{
+        //    Id = patient.Id,
+        //    FirstName = patient.FirstName,
+        //    LastName = patient.LastName,
+        //    DateOfBirth = patient.DateOfBirth,
+        //    Phone = patient.Phone,
+        //    Email = patient.Email
+        //};
+
+        return _mapper.Map<CreatePatientDto>(patient);
     }
 
     /// <summary>

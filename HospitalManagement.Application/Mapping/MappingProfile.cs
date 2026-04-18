@@ -20,6 +20,12 @@ public class MappingProfile : Profile
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) =>
                 srcMember != null && !srcMember.Equals(default)));
 
+        CreateMap<Patient, CreatePatientDto>()
+            .ForMember(d => d.Id, o => o.MapFrom(s => s.Id))
+            .ForMember(d => d.FullName, o => o.Ignore())  // Calculated field
+            .ForMember(d => d.Age, o => o.Ignore())       // Calculated field
+            .ForMember(d => d.CreatedAt, o => o.MapFrom(s => s.CreatedAt));
+
         // Read: Entity → DTO
         CreateMap<Patient, PatientDto>()
             .ForMember(d => d.FullName, o => o.MapFrom(s => $"{s.FirstName} {s.LastName}"))
