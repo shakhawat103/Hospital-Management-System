@@ -4,46 +4,56 @@
     ViewData["Title"] = "Book Appointment";
 }
 
-<div class="container py-4">
+<div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">📅 Book Appointment</h4>
-                </div>
-                <div class="card-body">
-                    <!-- ✅ EXPLICIT controller & action -->
-                    <form asp-controller="Appointments" asp-action="Book" method="post">
-                        @Html.AntiForgeryToken()
-
-                        <!-- Show all validation errors at once -->
-                        <div asp-validation-summary="All" class="alert alert-danger py-2 mb-3"></div>
-
-                        <!-- Hidden fields for routing -->
-                        <input type="hidden" asp-for="PatientId" />
-                        <input type="hidden" asp-for="DoctorId" />
-
-                        <div class="mb-3">
-                            <label asp-for="AppointmentDate" class="form-label">Preferred Date & Time *</label>
-                            <!-- ✅ datetime-local format: yyyy-MM-ddTHH:mm -->
-                            <input asp-for="AppointmentDate" type="datetime-local" class="form-control"
-                                   min="@DateTime.Now.AddHours(1).ToString("yyyy-MM-ddTHH:mm")" />
-                            <span asp-validation-for="AppointmentDate" class="text-danger small"></span>
-                            <small class="text-muted">Must be at least 1 hour from now</small>
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="row g-0">
+                    <div class="col-md-4 bg-primary p-5 text-white d-flex flex-column justify-content-center">
+                        <h3 class="fw-bold mb-3">Complete Your Booking</h3>
+                        <p class="text-white-75 mb-4">You are just one step away from securing your consultation. Please select your preferred time slot.</p>
+                        <div class="d-flex align-items-center bg-white bg-opacity-10 p-3 rounded-3">
+                            <i class="bi bi-shield-check fs-2 me-3"></i>
+                            <small>Secure, encrypted booking process for your privacy.</small>
                         </div>
+                    </div>
 
-                        <div class="mb-4">
-                            <label asp-for="Notes" class="form-label">Reason for Visit (Optional)</label>
-                            <textarea asp-for="Notes" class="form-control" rows="3"
-                                      placeholder="Briefly describe symptoms..."></textarea>
-                            <span asp-validation-for="Notes" class="text-danger small"></span>
-                        </div>
+                    <div class="col-md-8 p-5">
+                        <form asp-controller="Appointments" asp-action="Book" method="post" class="needs-validation" novalidate>
+                            @Html.AntiForgeryToken()
 
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a asp-action="BrowseDoctors" class="btn btn-secondary">← Back</a>
-                            <button type="submit" class="btn btn-success px-4">✅ Confirm Booking</button>
-                        </div>
-                    </form>
+                            <input type="hidden" asp-for="PatientId" />
+                            <input type="hidden" asp-for="DoctorId" />
+
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 p-3 mb-4"></div>
+
+                            <div class="mb-4">
+                                <label asp-for="AppointmentDate" class="form-label fw-bold text-dark">Preferred Date & Time</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-calendar3"></i></span>
+                                    <input asp-for="AppointmentDate" type="datetime-local" class="form-control form-control-lg border-start-0"
+                                           min="@DateTime.Now.AddHours(1).ToString("yyyy-MM-ddTHH:mm")" />
+                                </div>
+                                <span asp-validation-for="AppointmentDate" class="text-danger small"></span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label asp-for="Notes" class="form-label fw-bold text-dark">Reason for Visit</label>
+                                <textarea asp-for="Notes" class="form-control bg-light border-0" rows="4"
+                                          placeholder="Share any specific symptoms or concerns..."></textarea>
+                                <div class="form-text">Optional: This helps our doctor prepare for your visit.</div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                                <a asp-action="BrowseDoctors" class="text-decoration-none text-muted fw-semibold">
+                                    <i class="bi bi-arrow-left me-1"></i> Back to list
+                                </a>
+                                <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow">
+                                    Confirm Booking
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -51,7 +61,5 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
 }

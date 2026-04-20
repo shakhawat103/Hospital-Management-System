@@ -51,28 +51,18 @@ public class MappingProfile : Profile
             .ForMember(d => d.Status, o => o.Ignore());  // Set manually in service
 
         // === APPOINTMENT: Appointment → AppointmentDto ===
+        // Inside MappingProfile class:
         CreateMap<Appointment, AppointmentDto>()
-            .ForMember(
-                d => d.PatientName,
-                o => o.MapFrom(s =>
-                    (s.Patient != null
-                        ? s.Patient.FirstName
-                        : string.Empty) + " " +
-                    (s.Patient != null
-                        ? s.Patient.LastName
-                        : string.Empty)))
-            .ForMember(
-                d => d.DoctorName,
-                o => o.MapFrom(s =>
-                    (s.Doctor != null
-                        ? s.Doctor.FirstName
-                        : string.Empty) + " " +
-                    (s.Doctor != null
-                        ? s.Doctor.LastName
-                        : string.Empty)))
-            .ForMember(d => d.DoctorSpecialty, o => o.MapFrom(s => s.Doctor != null ? s.Doctor.Specialty : null))
-            .ForMember(d => d.DoctorPhotoUrl, o => o.MapFrom(s => s.Doctor != null ? s.Doctor.PhotoUrl : null))
-            .ForMember(d => d.DoctorFee, o => o.MapFrom(s => s.Doctor != null ? s.Doctor.ConsultationFee : 0));
+            .ForMember(d => d.PatientName, o => o.MapFrom(s =>
+                (s.Patient != null ? s.Patient.FirstName : string.Empty) + " " + (s.Patient != null ? s.Patient.LastName : string.Empty)))
+            .ForMember(d => d.DoctorName, o => o.MapFrom(s =>
+                (s.Doctor != null ? s.Doctor.FirstName : string.Empty) + " " + (s.Doctor != null ? s.Doctor.LastName : string.Empty)))
+            .ForMember(d => d.DoctorSpecialty, o => o.MapFrom(s =>
+                s.Doctor != null ? s.Doctor.Specialty : null))
+            .ForMember(d => d.DoctorPhotoUrl, o => o.MapFrom(s =>
+                s.Doctor != null ? s.Doctor.PhotoUrl : null))
+            .ForMember(d => d.DoctorFee, o => o.MapFrom(s =>
+                s.Doctor != null ? s.Doctor.ConsultationFee : 0));
 
         // === DOCTOR: Doctor → DoctorCardDto (for browsing) ===
         CreateMap<Doctor, DoctorCardDto>()

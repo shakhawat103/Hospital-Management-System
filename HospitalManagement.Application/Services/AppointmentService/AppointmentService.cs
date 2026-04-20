@@ -78,29 +78,50 @@ public class AppointmentService : IAppointmentService
     // === 📋 PATIENT: View Their Appointments ===
     public async Task<IEnumerable<AppointmentDto>> GetPatientAppointmentsAsync(int patientId)
     {
-        // Get all appointments for this patient (not deleted)
+        // ✅ FIX: Use Include to load Doctor data
         var appointments = await _unitOfWork.Repository<Appointment>()
-            .FindAsync(a => a.PatientId == patientId && !a.IsDeleted);
+            .GetAllAsync(); // Get all first
 
-        // Map to DTOs with doctor details
-        var dtos = _mapper.Map<IEnumerable<AppointmentDto>>(appointments);
+        // Filter and include doctor manually
+        var patientAppointments = appointments
+            .Where(a => a.PatientId == patientId && !a.IsDeleted)
+            .ToList();
 
-        // 💡 Enrich each DTO with doctor details (since mapping doesn't auto-include navigation)
-        foreach (var dto in dtos)
+        // ✅ Manually load doctor for each appointment
+        var dtos = new List<AppointmentDto>();
+        foreach (var appt in patientAppointments)
         {
-            var appt = await _unitOfWork.Repository<Appointment>()
-                .GetByIdAsync(dto.Id);
+            // Add temporary logging to see what's happening:
+            Console.WriteLine($"Appointment {appt.Id} - DoctorId: {appt.DoctorId}");
 
-            if (appt?.Doctor != null)
+            // Load doctor explicitly
+            var doctor = await _unitOfWork.Repository<Doctor>().GetByIdAsync(appt.DoctorId);
+
+            if (doctor == null)
             {
-                dto.DoctorName = $"{appt.Doctor.FirstName} {appt.Doctor.LastName}";
-                dto.DoctorSpecialty = appt.Doctor.Specialty;
-                dto.DoctorPhotoUrl = appt.Doctor.PhotoUrl;
-                dto.DoctorFee = appt.Doctor.ConsultationFee;
+                Console.WriteLine($"⚠️ Doctor {appt.DoctorId} NOT FOUND!");
             }
+            else
+            {
+                Console.WriteLine($"✅ Doctor: {doctor.FirstName} {doctor.LastName}");
+            }
+            
+            
+
+            var dto = _mapper.Map<AppointmentDto>(appt);
+
+            // ✅ Set doctor details
+            if (doctor != null)
+            {
+                dto.DoctorName = $"{doctor.FirstName} {doctor.LastName}";
+                dto.DoctorSpecialty = doctor.Specialty;
+                dto.DoctorPhotoUrl = doctor.PhotoUrl;
+                dto.DoctorFee = doctor.ConsultationFee;
+            }
+
+            dtos.Add(dto);
         }
 
-        // Sort by date (upcoming first)
         return dtos.OrderByDescending(a => a.AppointmentDate);
     }
 

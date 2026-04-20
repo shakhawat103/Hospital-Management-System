@@ -4,48 +4,48 @@
     ViewData["Title"] = "Find a Doctor";
 }
 
-<div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2>👨‍⚕️ Available Doctors</h2>
-            <p class="text-muted">Select a doctor to book an appointment</p>
-        </div>
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-dark">Our Medical Specialists</h2>
+        <p class="text-muted">Choose from our experienced team for your consultation.</p>
     </div>
 
     @if (Model?.Any() == true)
     {
-        <div class="row g-4">
+        <div class="row g-4 justify-content-center">
             @foreach (var doctor in Model)
             {
-                <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 shadow-sm border-0 hover-shadow">
-                        <!-- Doctor Photo -->
-                        <img src="@(doctor.PhotoUrl ?? "/images/default-doctor.png")"
-                             class="card-img-top"
-                             alt="@doctor.FullName"
-                             style="height: 200px; object-fit: cover;"
-                             onerror="this.src='/images/default-doctor.png'">
+                <div class="col-md-6 col-lg-4 col-xl-3">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden doctor-card">
 
-                        <div class="card-body">
-                            <h5 class="card-title">@doctor.FullName</h5>
-                            <p class="card-text text-primary fw-medium">@doctor.Specialty</p>
-
-                            <div class="mb-3">
-                                <small class="text-muted d-block">Consultation Fee</small>
-                                <strong class="text-success">@doctor.FormattedFee</strong>
-                            </div>
-
-                            <div class="mb-3">
-                                <small class="text-muted d-block">Contact</small>
-                                <small>📞 @doctor.Phone</small><br>
-                                <small>✉️ @doctor.Email</small>
+                        <div class="position-relative" style="height: 220px;">
+                            <img src="@(string.IsNullOrEmpty(doctor.PhotoUrl) ? "/images/default-doctor.png" : doctor.PhotoUrl)"
+                                 class="w-100 h-100"
+                                 alt="@doctor.FullName"
+                                 style="object-fit: cover; object-position: top center;"
+                                 onerror="this.src='/images/default-doctor.png'">
+                            <div class="position-absolute bottom-0 w-100 bg-gradient-dark p-3 text-white">
+                                <h5 class="mb-0">@doctor.FullName</h5>
+                                <small class="text-white-50">@doctor.Specialty</small>
                             </div>
                         </div>
 
-                        <div class="card-footer bg-white border-0">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="small text-muted">Consultation Fee</span>
+                                <span class="fw-bold text-primary fs-5">@doctor.FormattedFee</span>
+                            </div>
+
+                            <ul class="list-unstyled small text-muted mb-4">
+                                <li class="mb-2"><i class="bi bi-telephone-fill me-2 text-primary"></i>@doctor.Phone</li>
+                                <li><i class="bi bi-envelope-fill me-2 text-primary"></i>@doctor.Email</li>
+                            </ul>
+                        </div>
+
+                        <div class="card-footer bg-white border-0 p-4 pt-0">
                             <a asp-action="Book" asp-route-doctorId="@doctor.Id"
-                               class="btn btn-primary w-100">
-                                📅 Book Appointment
+                               class="btn btn-primary rounded-pill w-100 shadow-sm py-2">
+                                <i class="bi bi-calendar-check me-2"></i>Book Now
                             </a>
                         </div>
                     </div>
@@ -53,16 +53,18 @@
             }
         </div>
     }
-    else
-    {
-        <div class="alert alert-info">
-            <i class="bi bi-info-circle me-2"></i>
-            No doctors available at the moment. Please check back later.
-        </div>
-    }
 </div>
 
 <style>
-    .hover-shadow { transition: transform 0.2s, box-shadow 0.2s; }
-    .hover-shadow:hover { transform: translateY(-4px); box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.1) !important; }
+    .doctor-card {
+        transition: transform 0.3s ease;
+    }
+
+        .doctor-card:hover {
+            transform: translateY(-10px);
+        }
+
+    .bg-gradient-dark {
+        background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    }
 </style>
